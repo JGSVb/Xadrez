@@ -85,6 +85,8 @@ void init_sdl(void){
 		exit(1);	
 	}
 
+	SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 	
 	memset(&app, 0, sizeof(Application));
 	app.window = SDL_CreateWindow("Xadrez", SDL_WINDOWPOS_UNDEFINED,
@@ -98,7 +100,6 @@ void init_sdl(void){
 		exit(1);	
 	}
 
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 
 	app.renderer = SDL_CreateRenderer(app.window, -1, SDL_RENDERER_ACCELERATED);
 
@@ -179,19 +180,23 @@ void do_input(void){
 					if(app.selected_square == clicked_square)
 						app.selected_square = -1;
 					else {
-						ChessPiece *piece;
-						int previous_square = app.selected_square;
+						int previous_selected_square = app.selected_square;
 						app.selected_square = clicked_square;
-						if(previous_square == -1) break;
-						if((piece = board.squares[previous_square]) != NULL){
-							piece->position = clicked_square;
-							if(board.squares[piece->position] != NULL){
-								ChessPiece *previous_piece = board.squares[piece->position];
+						if(previous_selected_square == -1) break;
+
+						ChessPiece *piece = piece = board.squares[previous_selected_square];
+
+						if(piece != NULL){
+							piece->position    = clicked_square;
+							int piece_position = clicked_square;
+
+							if(board.squares[piece_position] != NULL){
+								ChessPiece *previous_piece = board.squares[piece_position];
 								g_ptr_array_remove(board.pieces, previous_piece);
 								free(previous_piece);
-								board.squares[piece->position] = NULL;
+								board.squares[piece_position] = NULL;
 							}
-							board.squares[piece->position] = piece;
+							board.squares[piece_position] = piece;
 						}
 					}
 					break;
