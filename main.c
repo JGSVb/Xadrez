@@ -66,17 +66,21 @@ Application app;
 ChessBoard  board;
 
 void init_sdl(void);
+void init(void);
 void load_textures(void);
 void destroy_textures(void);
 void quit_sdl(void);
 void finish(void);
+
 void do_input(void);
 void do_draw(void);
+
 void init_board(void);
+void setup_board(void);
 void finish_board(void);
 ChessPiece *set_piece(ChessPiece *piece);
-void init(void);
-void setup_board(void);
+void remove_piece(int position);
+void move_piece(int position, int dest);
 
 void init_sdl(void){
 
@@ -129,6 +133,7 @@ void load_textures(void){
 				exit(1);
 			}
 			
+
 			if((texture = SDL_CreateTextureFromSurface(app.renderer, image)) == NULL){
 				printf("Impossível carregar textura da imagem '%s': %s\n", dest, IMG_GetError());
 				quit_sdl();
@@ -147,6 +152,7 @@ void destroy_textures(void){
 		for(int i = 0; i < CHESS_PIECE_TYPE_COUNT; i++){
 			SDL_DestroyTexture(app.pieces[k][i]);
 		}
+
 	}
 }
 
@@ -171,34 +177,23 @@ void do_input(void){
 
 	while(SDL_PollEvent(&event)){
 		switch(event.type){
+
 			case SDL_MOUSEBUTTONDOWN: {
 					int rect_size = WINDOW_SIZE / 8;
 					int ty = event.button.y / rect_size;
 					int tx = event.button.x / rect_size;
 					int clicked_square = ty * 8 + tx;
+					int previous_selected_square = app.selected_square;
 
-					if(app.selected_square == clicked_square)
+					if(previous_selected_square == clicked_square)
 						app.selected_square = -1;
 					else {
-						int previous_selected_square = app.selected_square;
-						app.selected_square = clicked_square;
-						if(previous_selected_square == -1) break;
-
-						ChessPiece *piece = piece = board.squares[previous_selected_square];
-
-						if(piece != NULL){
-							piece->position    = clicked_square;
-							int piece_position = clicked_square;
-
-							if(board.squares[piece_position] != NULL){
-								ChessPiece *previous_piece = board.squares[piece_position];
-								g_ptr_array_remove(board.pieces, previous_piece);
-								free(previous_piece);
-								board.squares[piece_position] = NULL;
-							}
-							board.squares[piece_position] = piece;
+						if(board.squares[previous_selected_square] != NULL){
+							move_piece(previous_selected_square, clicked_square);
 						}
 					}
+
+					app.selected_square = clicked_square;
 					break;
 			}
 			case SDL_QUIT:
@@ -286,8 +281,21 @@ ChessPiece *set_piece(ChessPiece *piece){
 	return previous_piece;
 }
 
-// TODO: quando precisar de uma função para remover as peças, terei que fazê-la
+void remove_piece(int position){
+	ChessPiece *piece = board.squares[position];
+	if(piece == NULL) return;
 
+	board.squares[position] = NULL;
+	g_ptr_array_remove(board.pieces, piece);
+	free(piece);
+}
+
+void move_piece(int position, int dest){
+	ChessPiece *piece = board.squares[position];
+	piece->position = dest;
+	board.squares[position] = NULL;
+	board.squares[dest]     = piece;
+}
 
 void init(void){
 	init_sdl();
