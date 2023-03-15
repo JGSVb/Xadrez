@@ -12,7 +12,7 @@ global_flags = [
 ]
 
 libs = {
-    "./graphics.c": ["sdl2", "SDL2_image"],
+    "./graphics.c": ["sdl2", "SDL2_image", "glib-2.0"],
     "./chess.c":    ["glib-2.0"],
     "./new_main.c":   ["sdl2", "SDL2_image", "glib-2.0"],
 }
@@ -68,6 +68,11 @@ def main():
 
         if not show_only:
             os.system(command)
+
+    assemble = "gcc " + " ".join(os.path.join(object_folder, x) for x in os.listdir(object_folder)) + " -o main"
+    print(assemble)
+    if not show_only:
+        os.system(assemble)
 
 if __name__ == "__main__":
     main()
