@@ -5,7 +5,6 @@ import sys
 CONFIG = dict()
 
 CONFIG["global_flags"] = [
-        "-c",
         "-g3",
         "-O0",
         "-Wall", 
@@ -79,6 +78,7 @@ def main():
                 lib_flags = get_lib_flags(v)
                 all_libs_flags.append(lib_flags)
                 command += " " + lib_flags
+                command += " -c"
 
         for flag in CONFIG["global_flags"]:
             command += " " + flag
@@ -92,10 +92,11 @@ def main():
         else:
             os.system(command)
 
-    assemble = "gcc {} {} {}".format(
+    assemble = "gcc {} {} {} {}".format(
             " ".join(map(lambda x: os.path.join(CONFIG["object_folder"], x), os.listdir(CONFIG["object_folder"]))),
             " -o " + CONFIG["output_filename"],
-            " ".join(all_libs_flags)
+            " ".join(all_libs_flags),
+            " ".join(CONFIG["global_flags"])
             )
     print(assemble)
 
