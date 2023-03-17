@@ -92,11 +92,10 @@ def main():
         else:
             os.system(command)
 
-    assemble = "gcc {} {} {} {}".format(
+    assemble = "gcc {} {} {}".format(
             " ".join(map(lambda x: os.path.join(CONFIG["object_folder"], x), os.listdir(CONFIG["object_folder"]))),
             " -o " + CONFIG["output_filename"],
             " ".join(all_libs_flags),
-            " ".join(CONFIG["global_flags"])
             )
     print(assemble)
 

@@ -28,37 +28,35 @@ ChessPiece *set_board_piece(ChessBoard *board, ChessPiece *piece){
 }
 
 void setup_board(ChessBoard *board){
-	for(int i = 0; i < 8; i++){
-		ChessPiece *pawn_white = malloc(sizeof(ChessPiece));
-		pawn_white->position = 8 + i;
-		pawn_white->type = PAWN;
-		pawn_white->team = WHITE;
-		set_board_piece(board, pawn_white);
-
-		ChessPiece *pawn_black = malloc(sizeof(ChessPiece));
-		pawn_black->position = 48 + i;
-		pawn_black->type = PAWN;
-		pawn_black->team = BLACK;
-		set_board_piece(board, pawn_black);
-	}
-
-	ChessPieceType piece_order[8] = {
+	ChessPieceType setup[64] = {
+		ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK,
+		PAWN, PAWN,   PAWN,   PAWN,  PAWN, PAWN,   PAWN,   PAWN,
+		-1,  -1,      -1,      -1,   -1,   -1,     -1,     -1,
+		-1,  -1,      -1,      -1,   -1,   -1,     -1,     -1,
+		-1,  -1,      -1,      -1,   -1,   -1,     -1,     -1,
+		-1,  -1,      -1,      -1,   -1,   -1,     -1,     -1,
+		PAWN, PAWN,   PAWN, PAWN,    PAWN, PAWN,   PAWN,   PAWN,
 		ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK
-		};
+	};
 
-	for(int i = 0; i < 8; i++){
-		ChessPiece *piece_white = malloc(sizeof(ChessPiece));
-		piece_white->team = WHITE;
-		piece_white->type = piece_order[i];
-		piece_white->position = i;
+	ChessPieceTeam territory[64] = {
+		WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE,
+		WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE,
+		0,     0,     0,     0,     0,    0,      0,     0,
+		0,     0,     0,     0,     0,    0,      0,     0,
+		0,     0,     0,     0,     0,    0,      0,     0,
+		0,     0,     0,     0,     0,    0,      0,     0,
+		BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+		BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+	};
 
-		set_board_piece(board, piece_white);
+	for(int i = 0; i < 64; i++){
+		if(setup[i] == -1) continue;
 
-		ChessPiece *piece_black = malloc(sizeof(ChessPiece));
-		piece_black->team = BLACK;
-		piece_black->type = piece_order[i];
-		piece_black->position = 56 + i;
-
-		set_board_piece(board, piece_black);
+		ChessPiece *piece = malloc(sizeof(ChessPiece));
+		piece->position = i;
+		piece->type = setup[i];
+		piece->team = territory[i];
+		set_board_piece(board, piece);
 	}
 }

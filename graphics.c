@@ -69,6 +69,8 @@ void init_graphics(ChessBoard *board){
 		printf("Impossível criar janela: %s\n", SDL_GetError());
 		exit(1);	
 	}
+	
+	SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_BLEND);
 
 	app.selected_square = -1;
 
@@ -146,7 +148,6 @@ static void destroy_textures(void){
 }
 
 void do_draw(void){
-
 	SDL_Rect clear = {0, 0, WINDOW_SIZE, WINDOW_SIZE};
 	SDL_RenderCopy(app.renderer, app.board_texture, NULL, &clear);
 
@@ -162,7 +163,9 @@ void do_draw(void){
 			.w = rect_size,
 			.h = rect_size
 		};
-		SDL_SetRenderDrawColor(app.renderer, 200, 30, 30, 255);
+
+		SDL_SetRenderDrawColor(app.renderer, 70, 90, 200, 150);
+
 		SDL_RenderFillRect(app.renderer, &rect);
 	}
 
@@ -200,15 +203,11 @@ void do_input(void){
 	while(SDL_PollEvent(&event)){
 		switch(event.type){
 
-			case SDL_MOUSEBUTTONDOWN: {
+			case SDL_MOUSEBUTTONUP: {
 					int rect_size = WINDOW_SIZE / 8;
 					int ty = event.button.y / rect_size;
 					int tx = event.button.x / rect_size;
 					int clicked_square = ty * 8 + tx;
-					int previous_selected_square = app.selected_square;
-
-					if(previous_selected_square == clicked_square)
-						app.selected_square = -1;
 
 					app.selected_square = clicked_square;
 					break;
