@@ -32,12 +32,12 @@ CONFIG["output_filename"] = "main"
 def get_lib_flags(name):
     return os.popen("pkg-config --libs --cflags " + name).read().strip()
 
-
 def main():
 
     show_only = False
     new_target = False 
     arg_target = []
+    recompile = True
 
     for arg in sys.argv[1:]:
         
@@ -45,11 +45,14 @@ def main():
             new_target = True
         elif arg == "-s" or arg == "--show_only":
             show_only = True
+        elif arg == "-r" or arg == "--no-recompile":
+            recompile = False
         elif arg.startswith("t="):
             arg_target.append(arg[2:])
         elif arg.startswith("o="):
             CONFIG["output_filename"] = arg[2:]
         else:
+            print("-r --no-recompile")
             print("-n --new-target")
             print("-s --show_only")
             print("t=...[.c] t=...[.c] ...")
@@ -68,7 +71,8 @@ def main():
     all_libs_flags = []
 
     for file in CONFIG["target"]:
-        command = "gcc " + file + " -o " + os.path.join(CONFIG["object_folder"], file + ".o")
+        dest = os.path.join(CONFIG["object_folder"], file + ".o")
+        command = "gcc " + file + " -o " + dest
 
         if file in CONFIG["libs"].keys():
             for v in CONFIG["libs"][file]:
@@ -81,7 +85,11 @@ def main():
 
         print(command)
 
-        if not show_only:
+        if show_only: continue
+
+        if os.path.isfile(dest) != recompile:
+            print("\033[35mFicheiro '{}' já existe, logo não foi recompilado\033[0m\n".format(dest))
+        else:
             os.system(command)
 
     assemble = "gcc {} {} {}".format(
