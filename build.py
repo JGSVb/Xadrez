@@ -2,7 +2,9 @@
 import os
 import sys
 
-global_flags = [
+CONFIG = dict()
+
+CONFIG["global_flags"] = [
         "-c",
         "-g3",
         "-O0",
@@ -11,19 +13,25 @@ global_flags = [
         "-Wpedantic"
 ]
 
-libs = {
+CONFIG["libs"] = {
     "./graphics.c": ["sdl2", "SDL2_image", "glib-2.0"],
     "./chess.c":    ["glib-2.0"],
-    "./new_main.c":   ["sdl2", "SDL2_image", "glib-2.0"],
+    "./new_main.c": ["sdl2", "SDL2_image", "glib-2.0"],
 }
 
-target = [
+CONFIG["target"] = [
     "./graphics.c",
     "./chess.c",
     "./new_main.c"
 ]
 
-object_folder = "./objects"
+CONFIG["object_folder"] = "./objects"
+
+CONFIG["output_filename"] = "main"
+
+def get_lib_flags(name):
+    return os.popen("pkg-config --libs --cflags " + name).read().strip()
+
 
 def main():
 
@@ -39,29 +47,36 @@ def main():
             show_only = True
         elif arg.startswith("t="):
             arg_target.append(arg[2:])
+        elif arg.startswith("o="):
+            CONFIG["output_filename"] = arg[2:]
         else:
             print("-n --new-target")
             print("-s --show_only")
             print("t=...[.c] t=...[.c] ...")
+            print("o=...")
             exit(1)
 
     if new_target:
-        target.clear()
+        CONFIG["target"].clear()
 
-    for v in arg_target: target.append(v)
+    for v in arg_target: CONFIG["target"].append(v)
 
     if os.path.relpath(__file__) != os.path.basename(__file__):
         print("{} != {}".format(os.path.relpath(__file__), os.path.basename(__file__)))
         exit(1)
 
-    for file in target:
-        command = "gcc " + file + " -o " + os.path.join(object_folder, file + ".o")
+    all_libs_flags = []
 
-        if file in libs.keys():
-            for v in libs[file]:
-                command += " " + os.popen("pkg-config --libs --cflags " + v).read().strip()
+    for file in CONFIG["target"]:
+        command = "gcc " + file + " -o " + os.path.join(CONFIG["object_folder"], file + ".o")
 
-        for flag in global_flags:
+        if file in CONFIG["libs"].keys():
+            for v in CONFIG["libs"][file]:
+                lib_flags = get_lib_flags(v)
+                all_libs_flags.append(lib_flags)
+                command += " " + lib_flags
+
+        for flag in CONFIG["global_flags"]:
             command += " " + flag
 
         print(command)
@@ -69,8 +84,13 @@ def main():
         if not show_only:
             os.system(command)
 
-    assemble = "gcc " + " ".join(os.path.join(object_folder, x) for x in os.listdir(object_folder)) + " -o main"
+    assemble = "gcc {} {} {}".format(
+            " ".join(map(lambda x: os.path.join(CONFIG["object_folder"], x), os.listdir(CONFIG["object_folder"]))),
+            " -o " + CONFIG["output_filename"],
+            " ".join(all_libs_flags)
+            )
     print(assemble)
+
     if not show_only:
         os.system(assemble)
 
