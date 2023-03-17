@@ -33,6 +33,10 @@ def get_lib_flags(name):
 
 def main():
 
+    if os.path.relpath(__file__) != os.path.basename(__file__):
+        print("{} != {}".format(os.path.relpath(__file__), os.path.basename(__file__)))
+        exit(1)
+
     show_only = False
     new_target = False 
     arg_target = []
@@ -62,10 +66,6 @@ def main():
         CONFIG["target"].clear()
 
     for v in arg_target: CONFIG["target"].append(v)
-
-    if os.path.relpath(__file__) != os.path.basename(__file__):
-        print("{} != {}".format(os.path.relpath(__file__), os.path.basename(__file__)))
-        exit(1)
 
     all_libs_flags = []
 
