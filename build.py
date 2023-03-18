@@ -87,7 +87,7 @@ def main():
 
         if show_only: continue
 
-        if os.path.isfile(dest) != recompile:
+        if not recompile and os.path.isfile(dest):
             print("\033[35mFicheiro '{}' já existe, logo não foi recompilado\033[0m\n".format(dest))
         else:
             os.system(command)
