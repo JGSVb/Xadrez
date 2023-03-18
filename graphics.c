@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <SDL2/SDL.h>
 #include <SDL_image.h>
+#include <stdbool.h>
 #include "graphics.h"
 #include "chess.h"
 
@@ -233,8 +234,22 @@ void do_input(void){
 					SDL_MouseButtonEvent b_event = event.button;
 					if(b_event.button == SDL_BUTTON_RIGHT){
 						app.pov = (app.pov == WHITE) ? BLACK : WHITE;
-					} else if (b_event.button == SDL_BUTTON_LEFT)
-						app.selected_square = get_position_on_screen(b_event.x, b_event.y);
+					} else if (b_event.button == SDL_BUTTON_LEFT){
+						int previous_square = app.selected_square;
+						int selected_square = get_position_on_screen(b_event.x, b_event.y);
+
+						if(previous_square == selected_square){
+							app.selected_square = -1;
+							break;
+						} else
+							app.selected_square = selected_square;
+
+						if(previous_square != -1 && app.board->squares[previous_square] != NULL){
+							ChessPiece *piece = move_piece_in_board(app.board, previous_square, selected_square, true);
+							if(piece) free(piece);
+						}
+
+					}
 					break;
 			}
 			case SDL_QUIT:
