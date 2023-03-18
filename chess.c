@@ -27,27 +27,30 @@ ChessPiece *set_board_piece(ChessBoard *board, ChessPiece *piece){
 	return previous_piece;
 }
 
+#define WP piece_quality(WHITE, PAWN)
+#define WN piece_quality(WHITE, KNIGHT)
+#define WB piece_quality(WHITE, BISHOP)
+#define WR piece_quality(WHITE, ROOK)
+#define WQ piece_quality(WHITE, QUEEN)
+#define WK piece_quality(WHITE, KING)
+
+#define BP piece_quality(BLACK, PAWN)
+#define BN piece_quality(BLACK, KNIGHT)
+#define BB piece_quality(BLACK, BISHOP)
+#define BR piece_quality(BLACK, ROOK)
+#define BQ piece_quality(BLACK, QUEEN)
+#define BK piece_quality(BLACK, KING)
+
 void setup_board(ChessBoard *board){
 	ChessPieceType setup[64] = {
-		ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK,
-		PAWN, PAWN,   PAWN,   PAWN,  PAWN, PAWN,   PAWN,   PAWN,
-		-1,  -1,      -1,      -1,   -1,   -1,     -1,     -1,
-		-1,  -1,      -1,      -1,   -1,   -1,     -1,     -1,
-		-1,  -1,      -1,      -1,   -1,   -1,     -1,     -1,
-		-1,  -1,      -1,      -1,   -1,   -1,     -1,     -1,
-		PAWN, PAWN,   PAWN, PAWN,    PAWN, PAWN,   PAWN,   PAWN,
-		ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK
-	};
-
-	ChessPieceTeam territory[64] = {
-		WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE,
-		WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE,
-		0,     0,     0,     0,     0,    0,      0,     0,
-		0,     0,     0,     0,     0,    0,      0,     0,
-		0,     0,     0,     0,     0,    0,      0,     0,
-		0,     0,     0,     0,     0,    0,      0,     0,
-		BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
-		BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,
+		WR, WN, WB, WQ, WK, WB, WN, WR,
+		WP, WP, WP, WP, WP, WP, WP, WP,
+		-1, -1, -1, -1, -1, -1, -1, -1,
+		-1, -1, -1, -1, -1, -1, -1, -1,
+		-1, -1, -1, -1, -1, -1, -1, -1,
+		-1, -1, -1, -1, -1, -1, -1, -1,
+		BP, BP, BP, BP, BP, BP, BP, BP,
+		BR, BN, BB, BQ, BK, BB, BN, BR,
 	};
 
 	for(int i = 0; i < 64; i++){
@@ -55,8 +58,7 @@ void setup_board(ChessBoard *board){
 
 		ChessPiece *piece = malloc(sizeof(ChessPiece));
 		piece->position = i;
-		piece->type = setup[i];
-		piece->team = territory[i];
+		piece->quality = setup[i];
 		set_board_piece(board, piece);
 	}
 }

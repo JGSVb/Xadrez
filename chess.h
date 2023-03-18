@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <glib-2.0/glib-unix.h>
 
+#define piece_quality(team, type) ((team) | (type))
+#define piece_team(quality) ((quality) & 0xf0)
+#define piece_type(quality) ((quality) & 0x0f)
+
 typedef enum {
 	PAWN,
 	BISHOP,
@@ -13,14 +17,14 @@ typedef enum {
 } ChessPieceType;
 
 typedef enum {
-	WHITE,
-	BLACK,
-	CHESS_PIECE_TEAM_COUNT
+	WHITE = 0x10,
+	BLACK = 0x20,
 } ChessPieceTeam;
 
+#define CHESS_PIECE_TEAM_COUNT 2
+
 typedef struct {
-	int team;
-	int type;
+	int quality;
 	int position;
 	int space[64];
 } ChessPiece;

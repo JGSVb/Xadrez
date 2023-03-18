@@ -182,7 +182,10 @@ void do_draw(void){
 
 		};
 
-		SDL_RenderCopy(app.renderer, app.pieces[piece->team][piece->type], NULL, &rect);
+		int team = piece_team(piece->quality);
+		int type = piece_type(piece->quality);
+
+		SDL_RenderCopy(app.renderer, app.pieces[(team>>4)-1][type], NULL, &rect);
 
 	}
 	
