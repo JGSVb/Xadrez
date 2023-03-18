@@ -1,6 +1,7 @@
 #pragma once
 #include <stdlib.h>
 #include <glib-2.0/glib-unix.h>
+#include <stdbool.h>
 
 #define piece_quality(team, type) ((team) | (type))
 #define piece_team(quality) ((quality) & 0xf0)
@@ -8,8 +9,8 @@
 
 typedef enum {
 	PAWN,
-	BISHOP,
 	KNIGHT,
+	BISHOP,
 	ROOK,
 	QUEEN,
 	KING,
@@ -38,5 +39,10 @@ ChessBoard *new_chess_board(void);
 void destroy_chess_board(ChessBoard *board);
 ChessPiece *set_board_piece(ChessBoard *board, ChessPiece *piece);
 void setup_board(ChessBoard *board);
+void print_board(ChessBoard *board);
+void init_chess(void);
+void get_possible_moves_in_board(ChessBoard *board, int position, int *possible_moves);
+ChessPiece *move_piece_in_board(ChessBoard *board, int src, int dest, bool replace);
+
 
 

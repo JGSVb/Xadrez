@@ -1,5 +1,18 @@
 #include "chess.h"
 #include <glib-2.0/glib-unix.h>
+#include <stdio.h>
+#include <wchar.h>
+#include <locale.h>
+#include <stdbool.h>
+
+static const wchar_t *piece_chars[CHESS_PIECE_TEAM_COUNT] = {
+		L"♙♘♗♖♕♔",
+		L"♟︎♞♝♜♛♚"
+};
+
+void init_chess(void){
+    setlocale(LC_CTYPE, "");	
+}
 
 ChessBoard *new_chess_board(void){
 	ChessBoard *board = malloc(sizeof(ChessBoard));
@@ -25,6 +38,49 @@ ChessPiece *set_board_piece(ChessBoard *board, ChessPiece *piece){
 	board->squares[piece->position] = piece;
 	
 	return previous_piece;
+}
+
+// TODO: finalizar
+void print_board(ChessBoard *board){
+	for(int i = 0; i < 64; i++){
+		if(board->squares[i] == NULL){
+			printf("* ");
+		} else {
+			char c;
+			ChessPiece *piece = board->squares[(63-i)];
+			ChessPieceType type = piece_type(piece->quality);
+			ChessPieceTeam team = piece_team(piece->quality);
+			if(team == WHITE)
+				wprintf(L"%lc ", piece_chars[0][type]);
+			else
+				wprintf(L"%lc ", piece_chars[1][type]);
+		}
+		if((i+1)%8 == 0) wprintf(L"\n");
+	}
+	wprintf(L"\n");
+}
+
+ChessPiece *move_piece_in_board(ChessBoard *board, int src, int dest, bool replace){
+	ChessPiece *previous_piece = board->squares[dest];
+
+	if(previous_piece && !replace) return previous_piece;
+
+	ChessPiece *moving = board->squares[src];
+	board->squares[dest] = moving;
+	board->squares[src]  = NULL;
+	moving->position = dest;
+
+	if(previous_piece){
+		g_ptr_array_remove(board->pieces, previous_piece);
+	}
+
+	return previous_piece;
+
+}
+
+void get_possible_moves_in_board(ChessBoard *board, int position, int *possible_moves){
+	
+
 }
 
 #define WP piece_quality(WHITE, PAWN)
