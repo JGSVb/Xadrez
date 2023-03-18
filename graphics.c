@@ -5,6 +5,7 @@
 #include "chess.h"
 
 #define WINDOW_SIZE (8*100)
+#define RECT_SIZE   ((WINDOW_SIZE)/8)
 #define UPDATE_TIME (1000/20)
 #define TEXTURE_FOLDER "/home/vieira/Testes/xadrez/pieces/"
 
@@ -26,12 +27,13 @@ static const char *chess_pieces_filename[CHESS_PIECE_TEAM_COUNT][CHESS_PIECE_TYP
 };
 
 typedef struct {
-	ChessBoard   *board;
-	SDL_Window   *window;
-	SDL_Renderer *renderer;
-	SDL_Texture  *pieces[CHESS_PIECE_TEAM_COUNT][CHESS_PIECE_TYPE_COUNT];
-	SDL_Texture  *board_texture;
-	int 	      selected_square;
+	ChessBoard     *board;
+	SDL_Window     *window;
+	SDL_Renderer   *renderer;
+	SDL_Texture    *pieces[CHESS_PIECE_TEAM_COUNT][CHESS_PIECE_TYPE_COUNT];
+	SDL_Texture    *board_texture;
+	ChessPieceTeam pov;
+	int 	       selected_square;
 } Application;
 
 static Application app;
@@ -39,6 +41,8 @@ static Application app;
 static void load_textures(void);
 static void destroy_textures(void);
 static void create_board_texture(void);
+static void get_rect_from_position(SDL_Rect *rect, int position);
+static int  get_position_on_screen(int x, int y);
 
 void init_graphics(ChessBoard *board){
 
@@ -73,6 +77,7 @@ void init_graphics(ChessBoard *board){
 	SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_BLEND);
 
 	app.selected_square = -1;
+	app.pov = WHITE;
 
 	app.board = board;
 
@@ -112,25 +117,24 @@ static void load_textures(void){
 }
 
 static void create_board_texture(void){
-	int rect_size = WINDOW_SIZE/8;
 
 	SDL_Surface *board_surface = SDL_CreateRGBSurface(0, WINDOW_SIZE, WINDOW_SIZE, 24, 0,0,0,0);
 
 	SDL_Rect clear = {0, 0, WINDOW_SIZE, WINDOW_SIZE};
-	SDL_FillRect(board_surface, &clear, 0xBBBBBB);
+	SDL_FillRect(board_surface, &clear, 0x1F1F1F);
 
 	SDL_Rect rects[32];
 
 	for(int i = 0; i < 32; i++){
 		int row = i/4;
 		int col = i%4;
-		rects[i].w = rect_size;
-		rects[i].h = rect_size;	
-		rects[i].x = (2*col + row%2) * rect_size;
-		rects[i].y = row*rect_size;
+		rects[i].w = RECT_SIZE;
+		rects[i].h = RECT_SIZE;	
+		rects[i].x = (2*col + row%2) * RECT_SIZE;
+		rects[i].y = row*RECT_SIZE;
 	}
 
-	SDL_FillRects(board_surface, rects, 32, 0x1F1F1F);
+	SDL_FillRects(board_surface, rects, 32, 0xBBBBBB);
 
 	SDL_Texture *board_texture = SDL_CreateTextureFromSurface(app.renderer, board_surface);
 	SDL_FreeSurface(board_surface);
@@ -147,24 +151,33 @@ static void destroy_textures(void){
 	}
 }
 
+static void get_rect_from_position(SDL_Rect *rect, int position){
+	int row = position / 8;
+	int col = position % 8;
+
+	rect->w = RECT_SIZE;
+	rect->h = RECT_SIZE;
+
+	if(app.pov == WHITE){
+		rect->x = col*RECT_SIZE;
+		rect->y = (7-row)*RECT_SIZE;
+	} else {
+		rect->x = (7-col)*RECT_SIZE;
+		rect->y = row*RECT_SIZE;
+	}
+
+}
+
 void do_draw(void){
 	SDL_Rect clear = {0, 0, WINDOW_SIZE, WINDOW_SIZE};
 	SDL_RenderCopy(app.renderer, app.board_texture, NULL, &clear);
 
-	int rect_size = WINDOW_SIZE/8;
-	
 	// NOTA: Quadrado selecionado
 	if(app.selected_square != -1){
-		int x = app.selected_square % 8 * rect_size;
-		int y = app.selected_square / 8 * rect_size;
-		SDL_Rect rect = {
-			.x = x,
-			.y = y,
-			.w = rect_size,
-			.h = rect_size
-		};
+		SDL_Rect rect;
+		get_rect_from_position(&rect, app.selected_square);
 
-		SDL_SetRenderDrawColor(app.renderer, 70, 90, 200, 150);
+		SDL_SetRenderDrawColor(app.renderer, 243, 156, 18, 150);
 
 		SDL_RenderFillRect(app.renderer, &rect);
 	}
@@ -172,20 +185,19 @@ void do_draw(void){
 	// NOTA: Peças
 	for(int i = 0; i < (int)app.board->pieces->len; i++){
 		ChessPiece *piece = g_ptr_array_index(app.board->pieces, i);
-		int row = piece->position/8;
-		int col = piece->position%8;
-		SDL_Rect rect = {
-			.w = rect_size,
-			.h = rect_size,
-			.x = rect_size*col,
-			.y = rect_size*row
-
-		};
+		SDL_Rect rect;
+		get_rect_from_position(&rect, piece->position);
 
 		int team = piece_team(piece->quality);
 		int type = piece_type(piece->quality);
 
-		SDL_RenderCopy(app.renderer, app.pieces[(team>>4)-1][type], NULL, &rect);
+		if(team == WHITE){
+			SDL_RenderCopy(app.renderer, app.pieces[0][type], NULL, &rect);
+		} else {
+			SDL_RenderCopy(app.renderer, app.pieces[1][type], NULL, &rect);
+		}
+		
+
 
 	}
 	
@@ -199,6 +211,17 @@ void quit_graphics(void){
 	SDL_DestroyTexture(app.board_texture);
 }
 
+static int get_position_on_screen(int x, int y){
+	int rx = x*8/WINDOW_SIZE;
+	int ry = y*8/WINDOW_SIZE;
+
+	if(app.pov == WHITE)
+		return (7-ry)*8 + rx;
+	else
+		return ry*8     + (7-rx);
+
+}
+
 void do_input(void){
 	
 	SDL_Event event;
@@ -206,13 +229,12 @@ void do_input(void){
 	while(SDL_PollEvent(&event)){
 		switch(event.type){
 
-			case SDL_MOUSEBUTTONUP: {
-					int rect_size = WINDOW_SIZE / 8;
-					int ty = event.button.y / rect_size;
-					int tx = event.button.x / rect_size;
-					int clicked_square = ty * 8 + tx;
-
-					app.selected_square = clicked_square;
+			case SDL_MOUSEBUTTONDOWN: {
+					SDL_MouseButtonEvent b_event = event.button;
+					if(b_event.button == SDL_BUTTON_RIGHT){
+						app.pov = (app.pov == WHITE) ? BLACK : WHITE;
+					} else if (b_event.button == SDL_BUTTON_LEFT)
+						app.selected_square = get_position_on_screen(b_event.x, b_event.y);
 					break;
 			}
 			case SDL_QUIT:
