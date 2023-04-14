@@ -44,6 +44,8 @@ static void get_row_and_col(int index, int *row, int *col, ChessPieceTeam pov){
 
 	if(pov == WHITE){
 		*row = 7-(*row);
+	}
+	if(pov == BLACK){
 		*col = 7-(*col);
 	}
 }
