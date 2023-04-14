@@ -6,6 +6,7 @@ int main(void){
 	ChessBoard *board = new_chess_board();
 	setup_board(board);
 	print_board(board, WHITE);
+	print_board(board, BLACK);
 
 	init_graphics(board);
 	

@@ -247,8 +247,10 @@ void do_input(void){
 						if(previous_square != -1 && app.board->squares[previous_square] != NULL){
 							if(make_a_move(app.board, previous_square, selected_square) == false)
 								app.selected_square = -1;
-							else
+							else {
 								print_board(app.board, WHITE);
+								print_board(app.board, BLACK);
+							}
 						}
 
 					}
