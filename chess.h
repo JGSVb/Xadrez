@@ -39,8 +39,7 @@ ChessBoard *new_chess_board(void);
 void destroy_chess_board(ChessBoard *board);
 ChessPiece *set_board_piece(ChessBoard *board, ChessPiece *piece);
 void setup_board(ChessBoard *board);
-void print_board(ChessBoard *board);
-void init_chess(void);
+void print_board(ChessBoard *board, ChessPieceTeam pov);
 void get_possible_moves_in_board(ChessBoard *board, int position, int *possible_moves);
 ChessPiece *move_piece_in_board(ChessBoard *board, int src, int dest, bool replace);
 

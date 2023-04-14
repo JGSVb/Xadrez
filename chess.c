@@ -2,17 +2,10 @@
 #include <glib-2.0/glib-unix.h>
 #include <stdio.h>
 #include <wchar.h>
-#include <locale.h>
 #include <stdbool.h>
 
-static const wchar_t *piece_chars[CHESS_PIECE_TEAM_COUNT] = {
-		L"♙♘♗♖♕♔",
-		L"♟︎♞♝♜♛♚"
-};
-
-void init_chess(void){
-    setlocale(LC_CTYPE, "");	
-}
+static const char *piece_type_chars = "PNBRQK";
+static const char *piece_team_chars = "wb";
 
 ChessBoard *new_chess_board(void){
 	ChessBoard *board = malloc(sizeof(ChessBoard));
@@ -40,24 +33,46 @@ ChessPiece *set_board_piece(ChessBoard *board, ChessPiece *piece){
 	return previous_piece;
 }
 
-// TODO: finalizar
-void print_board(ChessBoard *board){
+static void get_row_and_col(int index, int *row, int *col, ChessPieceTeam pov){
+	*row = index/8;
+	*col = index%8;
+
+	if(pov == WHITE){
+		*row = 7-(*row);
+		*col = 7-(*col);
+	}
+}
+void print_board(ChessBoard *board, ChessPieceTeam pov){
 	for(int i = 0; i < 64; i++){
-		if(board->squares[i] == NULL){
-			printf("* ");
+
+		int row, col;
+		get_row_and_col(i, &row, &col, pov);
+
+		int proper_index = row*8 + col;
+
+		if(i%8 == 0) printf("%u   ", row+1);
+
+		if(board->squares[proper_index] == NULL){
+			printf("*  ");
 		} else {
-			char c;
-			ChessPiece *piece = board->squares[(63-i)];
+			ChessPiece *piece = board->squares[proper_index];
 			ChessPieceType type = piece_type(piece->quality);
 			ChessPieceTeam team = piece_team(piece->quality);
-			if(team == WHITE)
-				wprintf(L"%lc ", piece_chars[0][type]);
-			else
-				wprintf(L"%lc ", piece_chars[1][type]);
+
+			char c_team = (team == WHITE ? piece_team_chars[0] : piece_team_chars[1]);
+			printf("%c%c ", c_team, piece_type_chars[type]);
 		}
-		if((i+1)%8 == 0) wprintf(L"\n");
+		if((i+1)%8 == 0) printf("\n");
 	}
-	wprintf(L"\n");
+
+	printf("\n    ");
+	for(int i = 0; i < 8; i++) {
+		int col, _;
+		get_row_and_col(i, &_, &col, pov);
+		printf("%c  ", 'a' + col);
+	};
+
+	printf("\n\n");
 }
 
 ChessPiece *move_piece_in_board(ChessBoard *board, int src, int dest, bool replace){

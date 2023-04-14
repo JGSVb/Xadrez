@@ -3,10 +3,9 @@
 #include "chess.h"
 
 int main(void){
-	init_chess();
 	ChessBoard *board = new_chess_board();
 	setup_board(board);
-	print_board(board);
+	print_board(board, WHITE);
 
 	init_graphics(board);
 	
@@ -15,7 +14,6 @@ int main(void){
 		do_input();
 		SDL_Delay(50);
 	}
-	
 	destroy_chess_board(board);
 	quit_graphics();
 	return 0;
