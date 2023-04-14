@@ -245,8 +245,10 @@ void do_input(void){
 							app.selected_square = selected_square;
 
 						if(previous_square != -1 && app.board->squares[previous_square] != NULL){
-							ChessPiece *piece = move_piece_in_board(app.board, previous_square, selected_square, true);
-							if(piece) free(piece);
+							if(make_a_move(app.board, previous_square, selected_square) == false)
+								app.selected_square = -1;
+							else
+								print_board(app.board, WHITE);
 						}
 
 					}

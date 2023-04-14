@@ -7,6 +7,9 @@
 static const char *piece_type_chars = "PNBRQK";
 static const char *piece_team_chars = "wb";
 
+static ChessPiece *move_piece_in_board(ChessBoard *board, int src, int dest, bool replace);
+static void get_row_and_col(int index, int *row, int *col, ChessPieceTeam pov);
+
 ChessBoard *new_chess_board(void){
 	ChessBoard *board = malloc(sizeof(ChessBoard));
 	board->pieces = g_ptr_array_new();
@@ -14,6 +17,8 @@ ChessBoard *new_chess_board(void){
 	for(int i = 0; i < 64; i++){
 		board->squares[i] = NULL;
 	}
+
+	board->turn = WHITE;
 
 	return board;
 }
@@ -75,7 +80,7 @@ void print_board(ChessBoard *board, ChessPieceTeam pov){
 	printf("\n\n");
 }
 
-ChessPiece *move_piece_in_board(ChessBoard *board, int src, int dest, bool replace){
+static ChessPiece *move_piece_in_board(ChessBoard *board, int src, int dest, bool replace){
 	ChessPiece *previous_piece = board->squares[dest];
 
 	if(previous_piece && !replace) return previous_piece;
@@ -91,6 +96,25 @@ ChessPiece *move_piece_in_board(ChessBoard *board, int src, int dest, bool repla
 
 	return previous_piece;
 
+}
+
+bool make_a_move(ChessBoard *board, int src, int dest){
+	ChessPiece *moving_piece = board->squares[src];
+	ChessPiece *eaten_piece = board->squares[dest];
+
+	if(piece_team(moving_piece->quality) != board->turn || (eaten_piece && piece_team(eaten_piece->quality) == board->turn))
+		return false;
+
+	if(board->turn == WHITE)
+		board->turn = BLACK;
+	else
+		board->turn = WHITE;
+	
+	ChessPiece *result = move_piece_in_board(board, src, dest, true);
+	if(result) free(result);
+
+
+	return true;
 }
 
 void get_possible_moves_in_board(ChessBoard *board, int position, int *possible_moves){
