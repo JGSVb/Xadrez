@@ -8,6 +8,7 @@
 #define piece_type(quality) ((quality) & 0x0f)
 #define get_board_row(index) ((index)/8)
 #define get_board_col(index) ((index)%8)
+#define get_board_index(row, col) ((row)*8+(col))
 
 typedef enum {
 	PAWN,
@@ -44,7 +45,7 @@ ChessPiece *set_board_piece(ChessBoard *board, ChessPiece *piece);
 void setup_board(ChessBoard *board);
 void print_board(ChessBoard *board, ChessPieceTeam pov);
 void get_possible_moves_in_board(ChessBoard *board, int position, int *possible_moves);
-bool make_a_move(ChessBoard *board, int src, int dest);
+bool make_a_move(ChessBoard *board, int src, int dst);
 
 
 
