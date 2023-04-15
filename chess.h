@@ -6,6 +6,8 @@
 #define piece_quality(team, type) ((team) | (type))
 #define piece_team(quality) ((quality) & 0xf0)
 #define piece_type(quality) ((quality) & 0x0f)
+#define get_board_row(index) ((index)/8)
+#define get_board_col(index) ((index)%8)
 
 typedef enum {
 	PAWN,
