@@ -7,8 +7,9 @@
 static const char *piece_type_chars = "PNBRQK";
 static const char *piece_team_chars = "wb";
 
-static ChessPiece *move_piece_in_board(ChessBoard *board, int src, int dest, bool replace);
-static void get_row_and_col(int index, int *row, int *col, ChessPieceTeam pov);
+static void move_piece_in_board(ChessBoard *board, int src, int dst);
+static void get_row_and_col_for_printing(int index, int *row, int *col, ChessPieceTeam pov);
+static void classify_move(int src, int dst, char *direction, int *magnitude);
 
 ChessBoard *new_chess_board(void){
 	ChessBoard *board = malloc(sizeof(ChessBoard));
@@ -38,7 +39,7 @@ ChessPiece *set_board_piece(ChessBoard *board, ChessPiece *piece){
 	return previous_piece;
 }
 
-static void get_row_and_col(int index, int *row, int *col, ChessPieceTeam pov){
+static void get_row_and_col_for_printing(int index, int *row, int *col, ChessPieceTeam pov){
 	*row = index/8;
 	*col = index%8;
 
@@ -53,7 +54,7 @@ void print_board(ChessBoard *board, ChessPieceTeam pov){
 	for(int i = 0; i < 64; i++){
 
 		int row, col;
-		get_row_and_col(i, &row, &col, pov);
+		get_row_and_col_for_printing(i, &row, &col, pov);
 
 		int proper_index = row*8 + col;
 
@@ -75,46 +76,64 @@ void print_board(ChessBoard *board, ChessPieceTeam pov){
 	printf("\n    ");
 	for(int i = 0; i < 8; i++) {
 		int col, _;
-		get_row_and_col(i, &_, &col, pov);
+		get_row_and_col_for_printing(i, &_, &col, pov);
 		printf("%c  ", 'a' + col);
 	};
 
 	printf("\n\n");
 }
 
-static ChessPiece *move_piece_in_board(ChessBoard *board, int src, int dest, bool replace){
-	ChessPiece *previous_piece = board->squares[dest];
+/*
+* n:NORTE => direção brancas -> negras;
+* s:SUL   => direção negras  -> brancas;
+* e:ESTE  => direção ala da dama -> ala do rei;
+* w:OESTE => direção ala da rei  -> ala da dama;
+*/
+static void classify_move(int src, int dst, char *direction, int *magnitude){
+	int diff = dst-src;
 
-	if(previous_piece && !replace) return previous_piece;
-
-	ChessPiece *moving = board->squares[src];
-	board->squares[dest] = moving;
-	board->squares[src]  = NULL;
-	moving->position = dest;
-
-	if(previous_piece){
-		g_ptr_array_remove(board->pieces, previous_piece);
+	if(diff%8 == 0){
+		*magnitude = diff/8;
+		*direction = (magnitude > 0 ? 'n' : 's');
+	} else if(get_board_row(src) == get_board_row(dst)){
+		*magnitude = diff;
+		*direction = (magnitude > 0 ? 'e' : 'w');
 	}
-
-	return previous_piece;
-
 }
 
-bool make_a_move(ChessBoard *board, int src, int dest){
-	ChessPiece *moving_piece = board->squares[src];
-	ChessPiece *eaten_piece = board->squares[dest];
+static void move_piece_in_board(ChessBoard *board, int src, int dst){
+	ChessPiece *dst_piece = board->squares[dst];
+	ChessPiece *src_piece = board->squares[src];
 
-	if(piece_team(moving_piece->quality) != board->turn || (eaten_piece && piece_team(eaten_piece->quality) == board->turn))
-		return false;
+	board->squares[dst] = src_piece;
+	board->squares[src]  = NULL;
+	src_piece->position = dst;
 
-	if(board->turn == WHITE)
-		board->turn = BLACK;
-	else
-		board->turn = WHITE;
+	if(dst_piece){
+		g_ptr_array_remove(board->pieces, dst_piece);
+		free(dst_piece);
+	}
+}
+
+bool make_a_move(ChessBoard *board, int src, int dst){
+	ChessPiece *src_piece = board->squares[src];
+	ChessPiece *dst_piece = board->squares[dst];
+
+	if((dst_piece != NULL && piece_team(dst_piece->quality) == board->turn) ||
+		piece_team(src_piece->quality) != board->turn) return false;
+
+	switch(piece_type(src_piece->quality)){
+		case PAWN: {
+			int diff = dst-src;
+			if(!((diff == 8  && board->turn == WHITE) ||
+			     (diff == -8 && board->turn == BLACK))) return false;
+			break;
+		}
+	}
 	
-	ChessPiece *result = move_piece_in_board(board, src, dest, true);
-	if(result) free(result);
+	move_piece_in_board(board, src, dst);
 
+	board->turn = (board->turn == WHITE ? BLACK : WHITE);
 
 	return true;
 }
