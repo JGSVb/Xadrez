@@ -7,9 +7,13 @@
 static const char *piece_type_chars = "PNBRQK";
 static const char *piece_team_chars = "wb";
 
-static void move_piece_in_board(ChessBoard *board, int src, int dst);
+static void move_piece(ChessBoard *board, int src, int dst);
 static void get_row_and_col_for_printing(int index, int *row, int *col, ChessPieceTeam pov);
-static void classify_move(int src, int dst, char *direction, int *magnitude);
+static void remove_piece(ChessBoard *board, ChessPiece *piece);
+static bool check_piece_take(ChessBoard *board, int src, int dst);
+static void move_piece(ChessBoard *board, int src, int dst);
+static bool check_piece_move(ChessBoard *board, int src, int dst);
+static bool subcheck_hv_move(ChessBoard *board, int src, int dst);
 
 ChessBoard *new_chess_board(void){
 	ChessBoard *board = malloc(sizeof(ChessBoard));
@@ -83,55 +87,105 @@ void print_board(ChessBoard *board, ChessPieceTeam pov){
 	printf("\n\n");
 }
 
-/*
-* n:NORTE => direção brancas -> negras;
-* s:SUL   => direção negras  -> brancas;
-* e:ESTE  => direção ala da dama -> ala do rei;
-* w:OESTE => direção ala da rei  -> ala da dama;
-*/
-static void classify_move(int src, int dst, char *direction, int *magnitude){
-	int diff = dst-src;
 
-	if(diff%8 == 0){
-		*magnitude = diff/8;
-		*direction = (magnitude > 0 ? 'n' : 's');
-	} else if(get_board_row(src) == get_board_row(dst)){
-		*magnitude = diff;
-		*direction = (magnitude > 0 ? 'e' : 'w');
-	}
-}
-
-static void move_piece_in_board(ChessBoard *board, int src, int dst){
-	ChessPiece *dst_piece = board->squares[dst];
+static void move_piece(ChessBoard *board, int src, int dst){
 	ChessPiece *src_piece = board->squares[src];
 
 	board->squares[dst] = src_piece;
-	board->squares[src]  = NULL;
+	board->squares[src] = NULL;
 	src_piece->position = dst;
-
-	if(dst_piece){
-		g_ptr_array_remove(board->pieces, dst_piece);
-		free(dst_piece);
-	}
 }
 
-bool make_a_move(ChessBoard *board, int src, int dst){
+static void remove_piece(ChessBoard *board, ChessPiece *piece){
+	board->squares[piece->position] = NULL;
+	g_ptr_array_remove(board->pieces, piece);
+	free(piece);
+}
+
+static bool subcheck_hv_move(ChessBoard *board, int src, int dst){
+	int src_row, dst_row, src_col, dst_col;
+	src_row = get_board_row(src);
+	dst_row = get_board_row(dst);
+	src_col = get_board_col(src);
+	dst_col = get_board_col(dst);
+
+	if(src_col == dst_col || src_row == dst_row){
+		int row_diff = dst_row-src_row;
+		int col_diff = dst_col-src_col;
+		int row_dir = (row_diff == 0 ? 0 : row_diff/abs(row_diff));
+		int col_dir = (col_diff == 0 ? 0 : col_diff/abs(col_diff));
+		int test_row = src_row;
+		int test_col = src_col;
+
+		while(test_row != dst_row-row_dir || test_col != dst_col-col_dir){
+			test_row = test_row + row_dir;
+			test_col = test_col + col_dir;
+			if(board->squares[get_board_index(test_row, test_col)] != NULL){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	return false;
+}
+
+static bool check_piece_move(ChessBoard *board, int src, int dst){
 	ChessPiece *src_piece = board->squares[src];
 	ChessPiece *dst_piece = board->squares[dst];
 
-	if((dst_piece != NULL && piece_team(dst_piece->quality) == board->turn) ||
-		piece_team(src_piece->quality) != board->turn) return false;
+	if(src == dst)
+		return false;
+
+	if(piece_team(src_piece->quality)!=board->turn ||
+	   dst_piece != NULL)
+		return false;
+
+	int src_row, dst_row, src_col, dst_col;
+	src_row = get_board_row(src);
+	dst_row = get_board_row(dst);
+	src_col = get_board_col(src);
+	dst_col = get_board_col(dst);
 
 	switch(piece_type(src_piece->quality)){
 		case PAWN: {
-			int diff = dst-src;
-			if(!((diff == 8  && board->turn == WHITE) ||
-			     (diff == -8 && board->turn == BLACK))) return false;
+			// podem mover-se apenas verticalmente, como é sabido cá entre nós
+			if(src_col != dst_col){
+				return false;
+			}
+
+			int distance = dst_row - src_row;
+
+			if((distance == 2  && src_row == 1 && board->turn == WHITE) ||
+			   (distance == -2 && src_row == 6 && board->turn == BLACK)){
+				return true;
+			}
+
+			if((distance == 1  && board->turn == WHITE) ||
+			   (distance == -1 && board->turn == BLACK)){
+				return true;
+			}
+
+			return false;
+			break; // este break é apenas por cortesia, claro
+		}
+		case ROOK: {
+			return subcheck_hv_move(board, src, dst);
 			break;
 		}
 	}
+
+	return false;
+}
+
+static bool check_piece_take(ChessBoard *board, int src, int dst){
+	return false;
+}
+
+bool make_a_move(ChessBoard *board, int src, int dst){
+	if(!check_piece_move(board, src, dst)) return false;
 	
-	move_piece_in_board(board, src, dst);
+	move_piece(board, src, dst);
 
 	board->turn = (board->turn == WHITE ? BLACK : WHITE);
 
