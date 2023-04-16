@@ -2,12 +2,13 @@
 #include "graphics.h" 
 #include "chess.h"
 
+#define GRAPHICS
+
 int main(void){
 	ChessBoard *board = new_chess_board();
 	setup_board(board);
-	print_board(board, WHITE);
-	print_board(board, BLACK);
 
+	#ifdef GRAPHICS
 	init_graphics(board);
 	
 	while(1) { 
@@ -15,7 +16,9 @@ int main(void){
 		do_input();
 		SDL_Delay(50);
 	}
-	destroy_chess_board(board);
 	quit_graphics();
+	#endif
+
+	destroy_chess_board(board);
 	return 0;
 }
