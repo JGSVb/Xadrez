@@ -16,12 +16,14 @@ CONFIG["libs"] = {
     "./graphics.c": ["sdl2", "SDL2_image", "glib-2.0"],
     "./chess.c":    ["glib-2.0"],
     "./new_main.c": ["sdl2", "SDL2_image", "glib-2.0"],
+    "./test.c":     ["sdl2", "SDL2_image", "glib-2.0"],
 }
 
 CONFIG["target"] = [
     "./graphics.c",
     "./chess.c",
-    "./new_main.c"
+    "./new_main.c",
+    # "./test.c",
 ]
 
 CONFIG["object_folder"] = "./objects"
@@ -74,6 +76,8 @@ def main():
         command = "gcc " + file + " -o " + dest
 
         if file in CONFIG["libs"].keys():
+            if file not in CONFIG["target"]:
+                continue
             for v in CONFIG["libs"][file]:
                 lib_flags = get_lib_flags(v)
                 all_libs_flags.append(lib_flags)
