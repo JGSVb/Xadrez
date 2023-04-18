@@ -59,13 +59,12 @@ def main():
             arg_target.append(arg[2:])
         elif arg.startswith("o="):
             CONFIG["output_filename"] = arg[2:]
-        if args.startswith("e="):
+        elif arg.startswith("e="):
             target = os.path.normpath(arg[2:])
-            for ct in CONFIG["targets"]:
+            for ct in CONFIG["target"]:
                 if os.path.normpath(ct) == target:
-                    CONFIG["targets"].remove(ct)
+                    CONFIG["target"].remove(ct)
                     break
-
         else:
             print("-r --no-recompile")
             print("-n --new-target")
