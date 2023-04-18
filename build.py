@@ -67,6 +67,15 @@ def main():
             print("o=...")
             exit(1)
 
+    if not show_only:
+        try:
+            os.mkdir(CONFIG["object_folder"])
+        except FileExistsError:
+            pass
+        except:
+            print("Impossibilitado de criar pasta para os objetos de compilação")
+            exit(1)
+
     if new_target:
         CONFIG["target"].clear()
 
