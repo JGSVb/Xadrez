@@ -116,7 +116,7 @@ def main():
             os.system(command)
 
     assemble = "gcc {} {} {}".format(
-            " ".join(map(lambda x: os.path.join(CONFIG["object_folder"], x), os.listdir(CONFIG["object_folder"]))),
+            " ".join([os.path.join(CONFIG["object_folder"], os.path.basename(x)+".o") for x in CONFIG["target"]]),
             " -o " + CONFIG["output_filename"],
             " ".join(all_libs_flags),
             )
