@@ -35,7 +35,9 @@ void destroy_chess_board(ChessBoard *board){
 
 ChessPiece *set_board_piece(ChessBoard *board, ChessPiece *piece){
 	ChessPiece *previous_piece = board->squares[piece->position];
-	if(previous_piece != NULL) g_ptr_array_remove(board->pieces, previous_piece);
+	if(previous_piece != NULL){
+		g_ptr_array_remove(board->pieces, previous_piece);
+	}
 
 	g_ptr_array_add(board->pieces, piece);
 	board->squares[piece->position] = piece;
@@ -135,6 +137,8 @@ static bool check_piece_move(ChessBoard *board, int src, int dst){
 	ChessPiece *dst_piece = board->squares[dst];
 
 	if(src == dst)
+		return false;
+	if(src > 63 || dst > 63)
 		return false;
 
 	if(piece_team(src_piece->quality)!=board->turn ||
