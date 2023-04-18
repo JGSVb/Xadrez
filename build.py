@@ -23,7 +23,7 @@ CONFIG["target"] = [
     "./graphics.c",
     "./chess.c",
     "./new_main.c",
-    # "./test.c",
+    "./test.c",
 ]
 
 CONFIG["object_folder"] = "./objects"
@@ -48,7 +48,7 @@ def main():
     recompile = True
 
     for arg in sys.argv[1:]:
-        
+
         if arg == "-n" or arg == "--new-target":
             new_target = True
         elif arg == "-s" or arg == "--show_only":
@@ -59,12 +59,20 @@ def main():
             arg_target.append(arg[2:])
         elif arg.startswith("o="):
             CONFIG["output_filename"] = arg[2:]
+        if args.startswith("e="):
+            target = os.path.normpath(arg[2:])
+            for ct in CONFIG["targets"]:
+                if os.path.normpath(ct) == target:
+                    CONFIG["targets"].remove(ct)
+                    break
+
         else:
             print("-r --no-recompile")
             print("-n --new-target")
             print("-s --show_only")
             print("t=...[.c] t=...[.c] ...")
             print("o=...")
+            print("e=...[.c] -e=...[.c] ...")
             exit(1)
 
     if not show_only:
