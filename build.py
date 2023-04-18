@@ -35,8 +35,11 @@ def get_lib_flags(name):
 
 def main():
 
-    if os.path.relpath(__file__) != os.path.basename(__file__):
-        print("{} != {}".format(os.path.relpath(__file__), os.path.basename(__file__)))
+    filedir = os.path.normpath(os.path.split(__file__)[0])
+    workdir = os.getcwd()
+    if filedir != workdir:
+        print("Mude o diretório atual para o diretório deste script")
+        print(f"(CWD:{workdir}) != (FILEDIR:{filedir})")
         exit(1)
 
     show_only = False
