@@ -8,7 +8,7 @@
 #define WINDOW_SIZE (8*100)
 #define RECT_SIZE   ((WINDOW_SIZE)/8)
 #define UPDATE_TIME (1000/20)
-#define TEXTURE_FOLDER "/home/vieira/Testes/xadrez/pieces/"
+#define TEXTURE_FOLDER "./pieces/"
 
 static const char *chess_pieces_filename[CHESS_PIECE_TEAM_COUNT][CHESS_PIECE_TYPE_COUNT] = {
 	{ "w_pawn.svg",
@@ -247,10 +247,6 @@ void do_input(void){
 						if(previous_square != -1 && app.board->squares[previous_square] != NULL){
 							if(make_a_move(app.board, previous_square, selected_square) == false)
 								app.selected_square = -1;
-							else {
-								print_board(app.board, WHITE);
-								print_board(app.board, BLACK);
-							}
 						}
 
 					}
