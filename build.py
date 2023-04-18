@@ -15,14 +15,14 @@ CONFIG["global_flags"] = [
 CONFIG["libs"] = {
     "./graphics.c": ["sdl2", "SDL2_image", "glib-2.0"],
     "./chess.c":    ["glib-2.0"],
-    "./new_main.c": ["sdl2", "SDL2_image", "glib-2.0"],
+    "./main.c":     ["sdl2", "SDL2_image", "glib-2.0"],
     "./test.c":     ["sdl2", "SDL2_image", "glib-2.0"],
 }
 
 CONFIG["target"] = [
     "./graphics.c",
     "./chess.c",
-    "./new_main.c",
+    "./main.c",
     "./test.c",
 ]
 
