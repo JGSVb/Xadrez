@@ -4,6 +4,11 @@
 #include <assert.h>
 #include "bitboard.h"
 
+bboard_t bboard_set(bboard_t bb, uint8_t index, bboard_t bb_2){
+	assert(index<=63);
+	return bb||bboard_ltshift(bb_2, index);
+}
+
 bboard_t bboard_ltshift(bboard_t bb, bboard_t shift){
 	return bb<<shift;
 }
