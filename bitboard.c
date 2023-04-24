@@ -35,6 +35,7 @@ uint8_t bboard_file(uint8_t index){
 	return index & 7;
 }
 
+// https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#Vertical
 bboard_t bboard_flip_vertical(bboard_t bb){
 	return  ((bb<<56ULL)) |
 		((bb<<40ULL)&0x00FF000000000000ULL) |
@@ -46,18 +47,19 @@ bboard_t bboard_flip_vertical(bboard_t bb){
 		((bb>>56ULL));
 }
 
+// https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#Horizontal
+bboard_t bboard_flip_horizontal(bboard_t bb){
+	bb = ((bb >> 1) & BBOARD_K1) 	    | ((bb & BBOARD_K1)        << 1);
+	bb = ((bb >> 2) & BBOARD_FILEPAIRS) | ((bb & BBOARD_FILEPAIRS) << 2);
+	bb = ((bb >> 4) & BBOARD_LEFTHALF)  | ((bb & BBOARD_LEFTHALF)  << 4);
+	return bb;
+};
+
 void bboard_print(bboard_t bb){
 	puts("---------------");
 	for(int i = 0; i < 64; i++){
-		printf("%d ", bboard_state_2(bb, i));
+		printf("%c ", (bboard_state_2(bb, i) == 1 ? '1' : '.'));
 		if((i+1)%8==0) printf("\n");
 	}
 	puts("---------------");
-}
-
-int main(void){
-	bboard_t bb = 0b1110001111000001101000100101010010111101010110010111011010100111;
-	bboard_print(bb);
-	bboard_print(bboard_flip_vertical(bb));
-	return 0;
 }
