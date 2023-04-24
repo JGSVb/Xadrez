@@ -47,11 +47,15 @@ bboard_t bboard_flip_vertical(bboard_t bb){
 		((bb>>56ULL));
 }
 
+#define BBOARD_K1 0x5555555555555555ULL
+#define BBOARD_K2 0x3333333333333333ULL
+#define BBOARD_K4 0x0F0F0F0F0F0F0F0FULL
+
 // https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#Horizontal
 bboard_t bboard_flip_horizontal(bboard_t bb){
-	bb = ((bb >> 1) & BBOARD_K1) 	    | ((bb & BBOARD_K1)        << 1);
-	bb = ((bb >> 2) & BBOARD_FILEPAIRS) | ((bb & BBOARD_FILEPAIRS) << 2);
-	bb = ((bb >> 4) & BBOARD_LEFTHALF)  | ((bb & BBOARD_LEFTHALF)  << 4);
+	bb = ((bb >> 1) & BBOARD_K1) | ((bb & BBOARD_K1) << 1);
+	bb = ((bb >> 2) & BBOARD_K2) | ((bb & BBOARD_K2) << 2);
+	bb = ((bb >> 4) & BBOARD_K4) | ((bb & BBOARD_K4) << 4);
 	return bb;
 };
 
