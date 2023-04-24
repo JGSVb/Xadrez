@@ -59,6 +59,10 @@ bboard_t bboard_flip_horizontal(bboard_t bb){
 	return bb;
 };
 
+bboard_t bboard_mask_index(bboard_t bb, uint8_t index){
+	return bb & (BBOARD_SINGLE<<index);
+}
+
 void bboard_print(bboard_t bb){
 	puts("---------------");
 	for(int i = 0; i < 64; i++){

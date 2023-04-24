@@ -37,12 +37,19 @@ bboard_t chessboard_occupied(ChessBoard *board){
 void chessboard_print(ChessBoard *board, board_type_t pov){
 	bboard_t occ = chessboard_occupied(board);
 	for(int i = 0; i < 63; i++){
+		if(bboard_state_2(occ, i) == 1)
+			printf("a ");
+		else
+			printf("b ");
 
 	}
+	puts(" ");
 }
 
 int main(int argc, char **argv){
 	ChessBoard *board = chessboard_new();
+
+	chessboard_print(board, WHITE);
 
 	chessboard_destroy(board);
 	return 0;
