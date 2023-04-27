@@ -4,23 +4,21 @@
 #include <assert.h>
 #include "bitboard.h"
 
-bboard_t bboard_set(bboard_t bb, uint8_t index, bboard_t bb_2){
-	assert(index<=63);
-	bboard_t bb_03 = bb_2<<(bboard_t)index;
-	return bb | bb_03 & bb_03;
+bboard_t bboard_insert(bboard_t bb, uint8_t st_index, uint8_t en_index, bboard_t bb_2){
+	assert(st_index < 64 && en_index < 64 && st_index <= en_index);
+
+	bboard_t mask = (BBOARD_FULL<<(bboard_t)st_index) & ~(BBOARD_FULL<<(bboard_t)en_index);
+	return (bb & ~mask) | (bb_2 & mask);
 }
 
-bboard_t bboard_set_2(bboard_t bb, uint8_t index, bboard_t bb_2){
-	return bboard_set(bb, index, bb_2&BBOARD_SINGLE);
+bboard_t bboard_setbit(bboard_t bb, uint8_t index, bboard_t bb_2){
+	bboard_t mask = BBOARD_SINGLE<<(bboard_t)index;
+	return (bb & ~mask) | ((bb_2<<(bboard_t)index) & mask);
 }
 
 bboard_t bboard_state(bboard_t bb, uint8_t index){
 	assert(index<=63);
 	return bb>>(bboard_t)index;
-}
-
-bboard_t bboard_state_2(bboard_t bb, uint8_t index){
-	return bboard_state(bb, index)&BBOARD_SINGLE;
 }
 
 uint8_t bboard_index(uint8_t rank, uint8_t file){
@@ -57,7 +55,7 @@ bboard_t bboard_flip_horizontal(bboard_t bb){
 	bb = ((bb >> 2) & BBOARD_K2) | ((bb & BBOARD_K2) << 2);
 	bb = ((bb >> 4) & BBOARD_K4) | ((bb & BBOARD_K4) << 4);
 	return bb;
-};
+}
 
 bboard_t bboard_mask_index(bboard_t bb, uint8_t index){
 	return bb & (BBOARD_SINGLE<<index);
@@ -66,7 +64,7 @@ bboard_t bboard_mask_index(bboard_t bb, uint8_t index){
 void bboard_print(bboard_t bb){
 	puts("---------------");
 	for(int i = 0; i < 64; i++){
-		printf("%c ", (bboard_state_2(bb, i) == 1 ? '1' : '.'));
+		printf("%c ", (bboard_state(bb, i) == 1 ? '1' : '.'));
 		if((i+1)%8==0) printf("\n");
 	}
 	puts("---------------");
