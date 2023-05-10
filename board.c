@@ -1,55 +1,113 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 #include "board.h"
-
-static char piece_char[BOARD_TYPE_COUNT] = {
-	'w',
-	'b',
-	'P',
-	'N',
-	'B',
-	'R',
-	'Q',
-	'K'
-};
+#include "piece.h"
 
 void chessboard_destroy(ChessBoard *board){
+	assert(board!= NULL);
 	free(board);
 }
 
 ChessBoard *chessboard_new(void){
 	ChessBoard *board = malloc(sizeof(ChessBoard));
-	board->turn = WHITE;
-	for(int i = 0; i < BOARD_TYPE_COUNT; i++){
-		board->boards[i] = BBOARD_EMPTY;
+	board->side_to_move = PIECE_WHITE;
+	for(int i = 0; i < sizeof(board->piece_bb)/sizeof(bboard_t); i++){
+		board->piece_bb[i] = BBOARD_EMPTY;
 	}
 	return board;
 }
 
-bboard_t chessboard_free(ChessBoard *board){
-	return ~chessboard_occupied(board);
-}
+void chessboard_set(ChessBoard *board, uint8_t index, piecebb_t color, piecebb_t type, uint8_t state){
+	assert(board != NULL && index < 64 && (state == 1 || state == 0));
+	bboard_t bb;
 
-bboard_t chessboard_occupied(ChessBoard *board){
-	return board->boards[WHITE] | board->boards[BLACK];
-}
+	if(state == 0){
+		for(int i = 0; i < PIECEBB_COUNT; i++){
+			bb = board->piece_bb[i];
+			board->piece_bb[i] = bboard_setbit(bb, index, 0);
+		}
+	} else {
+		bb = board->piece_bb[PIECEBB_OCCUPIED];
+		bb = bboard_setbit(bb, index, 1);
+		board->piece_bb[PIECEBB_OCCUPIED] = bb;
 
-void chessboard_print(ChessBoard *board, board_type_t pov){
-	bboard_t occ = chessboard_occupied(board);
-	for(int i = 0; i < 63; i++){
-		if(bboard_state_2(occ, i) == 1)
-			printf("a ");
-		else
-			printf("b ");
+		bb = board->piece_bb[color];
+		bb = bboard_setbit(bb, index, 1);
+		board->piece_bb[color] = bb;
 
+		bb = board->piece_bb[type];
+		bb = bboard_setbit(bb, index, 1);
+		board->piece_bb[type] = bb;
 	}
-	puts(" ");
+}
+
+static const char *print_chars = "_wbPNBRQK";
+
+void chessboard_print(ChessBoard *board, printpov_t pov){
+	assert(board!=NULL && (pov == CHESSBOARD_WHITE || pov == CHESSBOARD_BLACK));
+
+	int start, step, fn;
+	bboard_t (*flip_function)(bboard_t);
+
+	bboard_t transformed_bb[PIECEBB_COUNT];
+
+	if(pov == CHESSBOARD_WHITE){
+		flip_function = bboard_flip_vertical;
+		start = 0;
+		step = 1;
+		fn = 8;
+	} else {
+		// inverter bitboards
+		flip_function = bboard_flip_horizontal;
+		start = 7;
+		step = -1;
+		fn = 1;
+	}
+
+	for(int ii = 0; ii < PIECEBB_COUNT; ii++){
+		transformed_bb[ii] = flip_function(board->piece_bb[ii]);
+	}
+
+	for(int ii = 0; ii < 64; ii++){
+		if(ii%8 == 0){
+			printf("\n%d ", fn);
+			fn -= step;
+		}
+
+		if(!bboard_getbit(transformed_bb[PIECEBB_OCCUPIED], ii)){
+			printf("**  ");
+		} else {
+			for(int jj = 1; jj < PIECEBB_COUNT; jj++){
+				if(bboard_getbit(transformed_bb[jj], ii)){
+					putchar(print_chars[jj]);
+				}
+			}
+			printf("  ");
+		}
+
+		if((ii+1)%8 == 0) {
+			printf("\n");
+		}
+		
+	}
+
+	int ii = start;
+	for(int kk = 0; kk < 8; kk++){
+		printf("  %c ", 'a'+ii);
+		ii += step;
+	}
+
+	printf("\n");
 }
 
 int main(int argc, char **argv){
 	ChessBoard *board = chessboard_new();
 
-	chessboard_print(board, WHITE);
+	chessboard_set(board, 35, UNPKPAWN(PIECEBB_WHITE), 1);
+
+	chessboard_print(board, CHESSBOARD_WHITE);
+	chessboard_print(board, CHESSBOARD_BLACK);
 
 	chessboard_destroy(board);
 	return 0;
