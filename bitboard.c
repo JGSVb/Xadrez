@@ -16,9 +16,9 @@ bboard_t bboard_setbit(bboard_t bb, uint8_t index, bboard_t bb_2){
 	return (bb & ~mask) | ((bb_2<<(bboard_t)index) & mask);
 }
 
-bboard_t bboard_state(bboard_t bb, uint8_t index){
+bboard_t bboard_getbit(bboard_t bb, uint8_t index){
 	assert(index<=63);
-	return bb>>(bboard_t)index;
+	return (bb>>(bboard_t)index) & BBOARD_SINGLE;
 }
 
 uint8_t bboard_index(uint8_t rank, uint8_t file){
@@ -64,7 +64,7 @@ bboard_t bboard_mask_index(bboard_t bb, uint8_t index){
 void bboard_print(bboard_t bb){
 	puts("---------------");
 	for(int i = 0; i < 64; i++){
-		printf("%c ", (bboard_state(bb, i) == 1 ? '1' : '.'));
+		printf("%c ", (bboard_getbit(bb, i) == 1 ? '1' : '.'));
 		if((i+1)%8==0) printf("\n");
 	}
 	puts("---------------");
