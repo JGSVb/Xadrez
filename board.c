@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <assert.h>
 #include "board.h"
-#include "piece.h"
 
 void chessboard_destroy(ChessBoard *board){
 	assert(board!= NULL);

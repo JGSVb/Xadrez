@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "bitboard.h"
-#include "piece.h"
 
 #define UNPKPAWN(color)   PIECEBB_PAWN,   (color)
 #define UNPKKNIGHT(color) PIECEBB_KNIGHT, (color)
