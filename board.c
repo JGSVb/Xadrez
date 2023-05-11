@@ -10,11 +10,19 @@ void chessboard_destroy(ChessBoard *board){
 
 ChessBoard *chessboard_new(void){
 	ChessBoard *board = malloc(sizeof(ChessBoard));
+	memset(board, 0, sizeof(ChessBoard));
 	board->side_to_move = PIECEBB_WHITE;
-	for(int i = 0; i < sizeof(board->piece_bb)/sizeof(bboard_t); i++){
-		board->piece_bb[i] = BBOARD_EMPTY;
-	}
 	return board;
+}
+
+ChessBoard *chessboard_copy(ChessBoard *src){
+	assert(src != NULL);
+	ChessBoard *new = chessboard_new();
+	for(int i = 0; i < sizeof(new->piece_bb); i++){
+		new->piece_bb[i] = src->piece_bb[i];
+	}
+	new->side_to_move = src->side_to_move;
+	return new;
 }
 
 void chessboard_set(ChessBoard *board, uint8_t index, piecebb_t color, piecebb_t type, uint8_t state){
