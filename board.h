@@ -31,7 +31,7 @@ typedef enum {
 
 typedef struct _ChessBoard {
 	bboard_t piece_bb[PIECEBB_COUNT];
-	piece_type_t side_to_move;
+	piecebb_t side_to_move;
 } ChessBoard;
 
 ChessBoard *chessboard_new(void);

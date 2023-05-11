@@ -10,7 +10,7 @@ void chessboard_destroy(ChessBoard *board){
 
 ChessBoard *chessboard_new(void){
 	ChessBoard *board = malloc(sizeof(ChessBoard));
-	board->side_to_move = PIECE_WHITE;
+	board->side_to_move = PIECEBB_WHITE;
 	for(int i = 0; i < sizeof(board->piece_bb)/sizeof(bboard_t); i++){
 		board->piece_bb[i] = BBOARD_EMPTY;
 	}
@@ -41,7 +41,7 @@ void chessboard_set(ChessBoard *board, uint8_t index, piecebb_t color, piecebb_t
 	}
 }
 
-static const char *print_chars = "_wbPNBRQK";
+static const char *print_chars = " wbPNBRQK";
 
 void chessboard_print(ChessBoard *board, printpov_t pov){
 	assert(board!=NULL && (pov == CHESSBOARD_WHITE || pov == CHESSBOARD_BLACK));
@@ -57,7 +57,6 @@ void chessboard_print(ChessBoard *board, printpov_t pov){
 		step = 1;
 		fn = 8;
 	} else {
-		// inverter bitboards
 		flip_function = bboard_flip_horizontal;
 		start = 7;
 		step = -1;
