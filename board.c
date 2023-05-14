@@ -144,12 +144,3 @@ void chessboard_print(ChessBoard *board, printpov_t pov){
 	printf("\n");
 }
 
-int main(void){
-	ChessBoard *board = chessboard_new();
-	chessboard_reset(board);
-
-	chessboard_print(board, POV_BLACK);
-	chessboard_print(board, POV_WHITE);
-
-	chessboard_destroy(board);
-}
