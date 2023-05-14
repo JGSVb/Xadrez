@@ -29,9 +29,17 @@ typedef enum {
 	CHESSBOARD_BLACK,
 } printpov_t;
 
+typedef enum {
+	CASTLE_RIGHTS_NONE  = 0,
+	CASTLE_RIGHTS_BLACK = 0x0F,
+	CASTLE_RIGHTS_WHITE = 0xF0,
+	CASTLE_RIGHTS_BOTH  = 0xFF,
+} castle_rights_t;
+
 typedef struct _ChessBoard {
 	bboard_t piece_bb[PIECEBB_COUNT];
 	piecebb_t side_to_move;
+	castle_rights_t castle_rights;
 } ChessBoard;
 
 ChessBoard *chessboard_new(void);

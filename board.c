@@ -13,6 +13,7 @@ ChessBoard *chessboard_new(void){
 	ChessBoard *board = malloc(sizeof(ChessBoard));
 	memset(board, 0, sizeof(ChessBoard));
 	board->side_to_move = PIECEBB_WHITE;
+	board->castle_rights = CASTLE_RIGHTS_BOTH;
 	return board;
 }
 
@@ -23,6 +24,7 @@ ChessBoard *chessboard_copy(ChessBoard *src){
 		new->piece_bb[i] = src->piece_bb[i];
 	}
 	new->side_to_move = src->side_to_move;
+	new->castle_rights = src->castle_rights;
 	return new;
 }
 
@@ -106,16 +108,4 @@ void chessboard_print(ChessBoard *board, printpov_t pov){
 	}
 
 	printf("\n");
-}
-
-int main(int argc, char **argv){
-	ChessBoard *board = chessboard_new();
-
-	chessboard_set(board, 35, UNPKPAWN(PIECEBB_WHITE), 1);
-
-	chessboard_print(board, CHESSBOARD_WHITE);
-	chessboard_print(board, CHESSBOARD_BLACK);
-
-	chessboard_destroy(board);
-	return 0;
 }
