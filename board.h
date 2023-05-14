@@ -38,8 +38,10 @@ typedef enum {
 
 typedef struct _ChessBoard {
 	bboard_t piece_bb[PIECEBB_COUNT];
+	bboard_t en_passant_target;
 	piecebb_t side_to_move;
 	castle_rights_t castle_rights;
+	int halfmove_clock;
 } ChessBoard;
 
 ChessBoard *chessboard_new(void);

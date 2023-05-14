@@ -25,6 +25,8 @@ ChessBoard *chessboard_copy(ChessBoard *src){
 	}
 	new->side_to_move = src->side_to_move;
 	new->castle_rights = src->castle_rights;
+	new->en_passant_target = src->en_passant_target;
+	new->halfmove_clock = src->halfmove_clock;
 	return new;
 }
 
