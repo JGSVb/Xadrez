@@ -25,8 +25,8 @@ typedef enum {
 } piecebb_t;
 
 typedef enum {
-	CHESSBOARD_WHITE,
-	CHESSBOARD_BLACK,
+	POV_WHITE,
+	POV_BLACK,
 } printpov_t;
 
 typedef enum {
@@ -46,6 +46,7 @@ typedef struct _ChessBoard {
 
 ChessBoard *chessboard_new(void);
 ChessBoard *chessboard_copy(ChessBoard *src);
+void chessboard_reset(ChessBoard *board);
 void chessboard_destroy(ChessBoard *board);
 void chessboard_print(ChessBoard *board, printpov_t pov);
 void chessboard_set(ChessBoard *board, uint8_t index, piecebb_t color, piecebb_t type, uint8_t state);

@@ -30,6 +30,38 @@ ChessBoard *chessboard_copy(ChessBoard *src){
 	return new;
 }
 
+void chessboard_reset(ChessBoard *board){
+	memset(board, 0, sizeof(board));
+	board->side_to_move = PIECEBB_WHITE;
+	board->castle_rights = CASTLE_RIGHTS_BOTH;
+
+	for(int i = 0; i < 8; i++){
+		chessboard_set(board, bboard_index(1, i), PIECEBB_WHITE, PIECEBB_PAWN, 1);
+		chessboard_set(board, bboard_index(6, i), PIECEBB_BLACK, PIECEBB_PAWN, 1);
+	}
+
+	chessboard_set(board, A1, PIECEBB_WHITE, PIECEBB_ROOK, 1);
+	chessboard_set(board, H1, PIECEBB_WHITE, PIECEBB_ROOK, 1);
+	chessboard_set(board, A8, PIECEBB_BLACK, PIECEBB_ROOK, 1);
+	chessboard_set(board, H8, PIECEBB_BLACK, PIECEBB_ROOK, 1);
+
+	chessboard_set(board, B1, PIECEBB_WHITE, PIECEBB_KNIGHT, 1);
+	chessboard_set(board, G1, PIECEBB_WHITE, PIECEBB_KNIGHT, 1);
+	chessboard_set(board, B8, PIECEBB_BLACK, PIECEBB_KNIGHT, 1);
+	chessboard_set(board, G8, PIECEBB_BLACK, PIECEBB_KNIGHT, 1);
+
+	chessboard_set(board, C1, PIECEBB_WHITE, PIECEBB_BISHOP, 1);
+	chessboard_set(board, F1, PIECEBB_WHITE, PIECEBB_BISHOP, 1);
+	chessboard_set(board, C8, PIECEBB_BLACK, PIECEBB_BISHOP, 1);
+	chessboard_set(board, F8, PIECEBB_BLACK, PIECEBB_BISHOP, 1);
+
+	chessboard_set(board, D1, PIECEBB_WHITE, PIECEBB_QUEEN, 1);
+	chessboard_set(board, D8, PIECEBB_BLACK, PIECEBB_QUEEN, 1);
+
+	chessboard_set(board, E1, PIECEBB_WHITE, PIECEBB_KING, 1);
+	chessboard_set(board, E8, PIECEBB_BLACK, PIECEBB_KING, 1);
+}
+
 void chessboard_set(ChessBoard *board, uint8_t index, piecebb_t color, piecebb_t type, uint8_t state){
 	assert(board != NULL && index < 64 && (state == 1 || state == 0));
 	bboard_t bb;
@@ -57,14 +89,14 @@ void chessboard_set(ChessBoard *board, uint8_t index, piecebb_t color, piecebb_t
 static const char *print_chars = " wbPNBRQK";
 
 void chessboard_print(ChessBoard *board, printpov_t pov){
-	assert(board!=NULL && (pov == CHESSBOARD_WHITE || pov == CHESSBOARD_BLACK));
+	assert(board!=NULL && (pov == POV_WHITE || pov == POV_BLACK));
 
 	int start, step, fn;
 	bboard_t (*flip_function)(bboard_t);
 
 	bboard_t transformed_bb[PIECEBB_COUNT];
 
-	if(pov == CHESSBOARD_WHITE){
+	if(pov == POV_WHITE){
 		flip_function = bboard_flip_vertical;
 		start = 0;
 		step = 1;
@@ -110,4 +142,14 @@ void chessboard_print(ChessBoard *board, printpov_t pov){
 	}
 
 	printf("\n");
+}
+
+int main(void){
+	ChessBoard *board = chessboard_new();
+	chessboard_reset(board);
+
+	chessboard_print(board, POV_BLACK);
+	chessboard_print(board, POV_WHITE);
+
+	chessboard_destroy(board);
 }
