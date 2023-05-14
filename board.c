@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 #include "board.h"
 
 void chessboard_destroy(ChessBoard *board){
